@@ -1,0 +1,28 @@
+{
+  "name": "Highlight some phrases",
+  "description": "Hightlight some pre defined text from websql database after page loads",
+  "version": "0.1",
+
+  "permissions": [
+    "tabs", "webRequest", "webRequestBlocking", "<all_urls>", "storage",
+    "contentSettings"
+  ],
+
+  "browser_action": {
+    "default_icon": "img/icon.png"
+  },
+
+  "background": {
+    "scripts": ["bin/listener_compiled.js"]
+  },
+
+  "content_scripts": [
+    {
+      "matches": [ "<all_urls>" ],
+      "js": ["libs/jquery-1.11.2.min.js"],
+      // "js": ["libs/jquery-1.11.2.min.js", "bin/content_compiled.js"],
+      "run_at": "document_end"          // pay attention to this line
+    }
+  ],
+  "manifest_version": 2
+}
