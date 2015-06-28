@@ -1,6 +1,9 @@
 function Utilities() {
 }
 
+Utilities.buffer = [];
+
+
 Utilities.getRandomToken = function() {
   // E.g. 8 * 32 = 256 bits token
   var randomPool = new Uint8Array(32);
@@ -12,6 +15,7 @@ Utilities.getRandomToken = function() {
   // E.g. db18458e2782b2b77e36769c569e263a53885a9944dd0a861e5064eac16f1a
   return hex;
 }
+
 
 Utilities.getUserId = function(callback) {
   chrome.storage.sync.get('userId', function(items) {
@@ -27,19 +31,32 @@ Utilities.getUserId = function(callback) {
   });
 };
 
+
 Utilities.logMessage = function(msg) {
   Utilities.getUserId(function(userId) {
     console.log(userId + ' ' + Date.now() + ' ' + msg);
   });
 };
 
+
 Utilities.logObject = function(obj) {
   obj['time'] = Date.now();
   Utilities.getUserId(function(userId) {
     obj['userId'] = userId;
-    console.log(obj);
+    Utilities.buffer.push(obj);
   });
 };
+
+
+Utilities.flushBuffer = function() {
+  var len = Utilities.buffer.length;
+  for (var i = 0; i < len; ++i) {
+    console.log(Utilities.buffer[i]);
+  }
+
+  Utilities.buffer.length = 0;
+};
+
 
 Utilities.getTextNodesIn = function(node, includeWhitespaceNodes) {
   var textNodes = [], nonWhitespaceMatcher = /\S/;
