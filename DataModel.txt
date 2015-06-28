@@ -1,0 +1,30 @@
+User:
+- UserId
+- UserAgent
+
+Hover:
+- LocationX
+- LocationY
+- Timestamp
+- User
+- Text under Curser
+- URL of Webpage
+
+SearchQuery:
+- SearchEngine
+- Query
+- Current Results
+- Timestamp
+- User
+
+Click:
+- Current Webpage
+- Next Webpage
+- Timestamp
+- User
+
+SearchClick:
+- Next Webpage
+- Timestamp
+- User
+- Rank in Results
