@@ -83,9 +83,29 @@ Utilities.logHoverEventOnTags = function(tag) {
       function(event) {
         Utilities.logObject({
           'Event': 'Hover',
+          'URL': window.location.href,
           'Text': $(this).text(),
           'PageX': event.pageX,
           'PageY': event.pageY
         });
       });
+};
+
+// navigator.sendBeacon polyfill, code taken from
+// https://github.com/miguelmota/Navigator.sendBeacon/blob/master/sendbeacon.js
+Utilities.sendBeacon = function(url, data) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', url, false);
+  xhr.setRequestHeader('Accept', '*/*');
+  if (typeof data === 'string') {
+    xhr.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
+    xhr.responseType = 'text/plain';
+  } else if (Object.prototype.toString.call(data) === '[object Blob]') {
+    if (data.type) {
+      xhr.setRequestHeader('Content-Type', data.type);
+    }
+  }
+
+  xhr.send(data);
+  return true;
 };
