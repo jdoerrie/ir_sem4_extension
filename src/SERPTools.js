@@ -1,11 +1,19 @@
+// This object defines tools to parse the Search Engine Result Page
+// (SERP) of Google, Yahoo and Bing
 function SERPTools() {
 }
 
+// Obtain the current query by reading it off the search query box.
+// Assumes that the selectors will always work.
+// TODO: Figure out a more robust way.
 SERPTools.getQuery = function() {
   var querySelector;
   var engine = SearchEngine.getEngine();
   switch (engine) {
     case SearchEngineEnum.Google:
+      // Depending of whether JavaScript is diabled on Google or not
+      // the id of the search box changes to we have to take this into
+      // acccount here.
       querySelector = Settings.DisableJSonGooglePages ?
         '#sbhost': '#lst-ib';
       break;
@@ -25,8 +33,9 @@ SERPTools.getQuery = function() {
   return $(querySelector).val();
 };
 
-// This utility function tries to find out the current linenumber by looking at
-// the bottom navigaton panel and figure out which number is highlighted.
+// This utility function tries to find out the current page number by
+// looking at the bottom navigaton panel and figure out which number is
+// highlighted.
 SERPTools.getResultsPageNumber = function() {
   var pageNumberSelector;
   var engine = SearchEngine.getEngine();
@@ -56,8 +65,8 @@ SERPTools.getResultsList = function() {
   var engine = SearchEngine.getEngine();
   switch (engine) {
     case SearchEngineEnum.Google:
-      // replace all a href in result lists by a data-href on the page, gets
-      // rid of implicit Google redirect
+      // replace all a href in result lists by a data-href on the page,
+      // rgets id of implicit Google redirect
       $('#rso a[data-href]').attr('href', function() {
         return $(this).attr('data-href');
       });
@@ -84,9 +93,9 @@ SERPTools.getResultsList = function() {
     var href = $(this).attr('href');
     var idx = pageNumber * 10 + index - 9;
 
-    // Yahoo is being a bitch here, it redirects its results but does not
-    // provide a data-href like Google does. Luckily it is possible to extract
-    // the relevant part from the redirect URL and decode it.
+    // Yahoo is being a bitch here, it redirects its results but does
+    // not provide a data-href like Google does. Luckily it is possible
+    // to extract the relevant part from the redirect URL and decode it.
     if (engine === SearchEngineEnum.Yahoo) {
       var regex = /RU=([^/]*)/;
       href = decodeURIComponent(href.match(regex)[1]);
@@ -98,14 +107,15 @@ SERPTools.getResultsList = function() {
       'href': href
     });
 
-    // we define a custom search rank attribute on every node here so that it
-    // will be easier to log the clicked result later.
+    // we define a custom search rank attribute on every node here so
+    // wthat it ill be easier to log the clicked result later.
     $(this).attr("search_rank", idx);
 
     // Register Click Handler
     $(this).click(function(event) {
       Utilities.logObject({
         'Event': "Click",
+        'URL': window.location.href,
         'PageX': event.pageX,
         'PageY': event.pageY,
         'Link': href,
