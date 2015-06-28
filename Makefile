@@ -16,7 +16,7 @@ content:
 	--js_output_file bin/content-compiled.js
 
 	# echo '//# sourceMappingURL=content.map'  >> bin/content-compiled.js
-	 cat src/*.js content_script.js > bin/content-compiled.js
+	cat src/*.js content_script.js > bin/content-compiled.js
 background:
 	# ${COMPILER} \
 	--compilation_level ${OPTIMIZATION} \
