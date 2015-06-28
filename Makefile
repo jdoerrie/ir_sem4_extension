@@ -26,8 +26,8 @@ background:
 	--externs ${EXTERNS} \
 	--js_output_file bin/background-compiled.js
 
-	# echo '//# sourceMappingURL=background.map'  >> bin/listener-compiled.js
-	cat src/*.js background.js > bin/listener-compiled.js
+	# echo '//# sourceMappingURL=background.map'  >> bin/background-compiled.js
+	cat src/*.js background.js > bin/background-compiled.js
 
 clean:
 	rm bin/*.js bin/*.map
