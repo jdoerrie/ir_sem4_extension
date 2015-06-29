@@ -18,14 +18,14 @@ Utilities.getRandomToken = function() {
 
 
 Utilities.getUserId = function(callback) {
-  chrome.storage.sync.get('userId', function(items) {
-    var userId = items.userId;
-    if (userId) {
-      callback(userId);
+  chrome.storage.sync.get('UserId', function(items) {
+    var UserId = items.UserId;
+    if (UserId) {
+      callback(UserId);
     } else {
-      userId = Utilities.getRandomToken();
-      chrome.storage.sync.set({userId: userId}, function() {
-        callback(userId);
+      UserId = Utilities.getRandomToken();
+      chrome.storage.sync.set({UserId: UserId}, function() {
+        callback(UserId);
       });
     }
   });
@@ -33,28 +33,64 @@ Utilities.getUserId = function(callback) {
 
 
 Utilities.logMessage = function(msg) {
-  Utilities.getUserId(function(userId) {
-    console.log(userId + ' ' + Date.now() + ' ' + msg);
+  Utilities.getUserId(function(UserId) {
+    console.log(UserId + ' ' + Date.now() + ' ' + msg);
+  });
+};
+
+
+Utilities.phoneHome = function(data, cb) {
+  if (!Array.isArray(data)) {
+    data = [data];
+  }
+
+  chrome.runtime.sendMessage({
+    action: 'beacon',
+    url: Settings.Endpoint,
+    data: data
+  }, cb);
+};
+
+
+Utilities.sendObject = function(obj) {
+  obj['Timestamp'] = Date.now();
+  Utilities.getUserId(function(UserId) {
+    obj['UserId'] = UserId;
+    Utilities.phoneHome(obj);
   });
 };
 
 
 Utilities.logObject = function(obj) {
-  obj['time'] = Date.now();
-  Utilities.getUserId(function(userId) {
-    obj['userId'] = userId;
+  obj['Timestamp'] = Date.now();
+  Utilities.getUserId(function(UserId) {
+    obj['UserId'] = UserId;
     Utilities.buffer.push(obj);
   });
 };
 
 
-Utilities.flushBuffer = function() {
-  var len = Utilities.buffer.length;
-  for (var i = 0; i < len; ++i) {
-    console.log(Utilities.buffer[i]);
-  }
+Utilities.sendBuffer = function() {
+  Utilities.phoneHome(Utilities.buffer, function(success) {
+    if (success) {
+      Utilities.buffer.length = 0;
+    }
+  })
+};
 
-  Utilities.buffer.length = 0;
+
+Utilities.addHandlerToAnchors = function() {
+  // Register Click Handlers on Links
+  $('a').click(function() {
+    Utilities.sendObject({
+      'Event': 'Click',
+      'CurrURL': window.location.href,
+      'PageX': event.pageX,
+      'PageY': event.pageY,
+      'Link': this.href,
+      'Text': this.text
+    });
+  });
 };
 
 
@@ -96,7 +132,7 @@ Utilities.wrapTextNodesInTag = function(tag, split) {
 };
 
 Utilities.logHoverEventOnTags = function(tag) {
-  $(tag).mouseover(
+  $(tag).mouseenter(
       function(event) {
         Utilities.logObject({
           'Event': 'Hover',
