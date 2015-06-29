@@ -15,8 +15,11 @@ function SearchEngine() {
 SearchEngine.getEngine = function() {
   var hostname = location.hostname;
   var pathname = location.pathname;
-  if (hostname.indexOf('google') !== -1 &&
-      pathname.indexOf('search') !== -1) {
+  if (pathname.indexOf('search') === -1) {
+    return SearchEngineEnum.Invalid;
+  }
+
+  if (hostname.indexOf('google') !== -1) {
     return SearchEngineEnum.Google;
   } else if (hostname.indexOf('bing') !== -1) {
     return SearchEngineEnum.Bing;
