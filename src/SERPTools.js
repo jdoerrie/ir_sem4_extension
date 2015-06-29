@@ -89,9 +89,10 @@ SERPTools.getResultsList = function() {
 
   var pageNumber = SERPTools.getResultsPageNumber();
   $(resultsSelector).delay('1000').each(function(index) {
+    var nPages = 10; // number of pages per Result Page
     var text = $(this).text();
     var href = $(this).attr('href');
-    var idx = pageNumber * 10 + index - 9;
+    var idx = pageNumber*(nPages - 1) + index + 1;
 
     // Yahoo is being a bitch here, it redirects its results but does
     // not provide a data-href like Google does. Luckily it is possible
@@ -102,9 +103,9 @@ SERPTools.getResultsList = function() {
     }
 
     resultsList.push({
-      'rank': idx,
-      'text': text,
-      'href': href
+      'Rank': idx,
+      'Text': text,
+      'Link': href
     });
 
     // we define a custom search rank attribute on every node here so
@@ -114,13 +115,13 @@ SERPTools.getResultsList = function() {
     // Register Click Handler
     $(this).click(function(event) {
       Utilities.logObject({
-        'Event': "Click",
-        'URL': window.location.href,
+        'Event': "SERPClick",
+        'CurrURL': window.location.href,
         'PageX': event.pageX,
         'PageY': event.pageY,
         'Link': href,
-        'Rank': idx,
-        'Text': text
+        'Text': text,
+        'Rank': idx
       });
     });
   });
