@@ -53,7 +53,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 });
 
 
-if (!Settings.DisableJSonGooglePages) {
+if (SearchEngine.getEngineByName() !== 'Google' ||
+    !Settings.DisableJSonGooglePages) {
   chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
     if (changeInfo.status == "complete") {
       chrome.tabs.executeScript(null, {
