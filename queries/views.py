@@ -1,7 +1,7 @@
 import datetime
 import json
 import logging
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Hover, SearchQuery, SearchResult, Click
@@ -10,6 +10,36 @@ from .models import User, Hover, SearchQuery, SearchResult, Click
 # Create your views here.
 def index(request):
     return HttpResponse("Hello, World. You're at the queries index.")
+
+
+def selectors(request, engine):
+    engine_selectors = {
+        'google': {
+            'searchBar':       '#sbtc',
+            'searchForm':      '.cdr_frm input',
+            'resultsEntry':    '#search li.g',
+            'navbar':          '#nav',
+            'currResultsPage': '#nav td.cur',
+        },
+
+        'bing': {
+            'searchBar':       'div .b_searchboxForm',
+            'searchForm':      '#sb_form_q',
+            'resultsEntry':    '#b_results li.b_algo',
+            'navbar':          '#b_results li.b_pag',
+            'currResultsPage': '#b_results li.b_pag a.sb_pagS',
+        },
+
+        'yahoo': {
+            'searchBar':       'form[role="search"]',
+            'searchForm':      '#yschsp',
+            'resultsEntry':    '.searchCenterMiddle div.algo',
+            'navbar':          'div.compPagination',
+            'currResultsPage': 'div.compPagination strong',
+        },
+    }
+
+    return JsonResponse(engine_selectors.get(engine.lower(), {}))
 
 
 @csrf_exempt
