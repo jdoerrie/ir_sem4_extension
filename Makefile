@@ -1,6 +1,6 @@
 # Optimize Flags: WHITESPACE_ONLY, SIMPLE, ADVANCED
 COMPILER=java -jar bin/compiler.jar
-OPTIMIZATION=SIMPLE
+OPTIMIZATION=NONE
 EXTERNS=externs/*.js
 SRC_FORMAT=V3
 
@@ -8,11 +8,11 @@ all:	content background
 
 content:
 ifeq (${OPTIMIZATION}, NONE)
-	cat src/*.js content_script.js > bin/content-compiled.js
+	cat src/*.js content.js > bin/content-compiled.js
 else
 	${COMPILER} \
 	--compilation_level ${OPTIMIZATION} \
-	--js src/*.js content_script.js \
+	--js src/*.js content.js \
 	--create_source_map bin/content.map \
 	--source_map_format ${SRC_FORMAT} \
 	--externs ${EXTERNS} \
@@ -26,7 +26,7 @@ ifeq (${OPTIMIZATION}, NONE)
 else
 	${COMPILER} \
 	--compilation_level ${OPTIMIZATION} \
-	--js src/*.js background.js \
+	--js src/Settings.js background.js \
 	--create_source_map bin/background.map \
 	--source_map_format ${SRC_FORMAT} \
 	--externs ${EXTERNS} \
