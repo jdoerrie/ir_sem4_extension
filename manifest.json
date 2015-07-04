@@ -13,15 +13,14 @@
   },
 
   "background": {
-    "scripts": ["bin/background-compiled.js"]
+    "scripts": ["libs/jquery-1.11.2.js", "bin/background-compiled.js"]
   },
 
   "content_scripts": [
     {
       "matches": [ "<all_urls>" ],
-      "js": ["libs/jquery-1.11.2.js"],
-      // "js": ["libs/jquery-1.11.2.min.js", "bin/content-compiled.js"],
-      "run_at": "document_end"          // pay attention to this line
+      "js": ["libs/jquery-1.11.2.js", "bin/content-compiled.js"],
+      "run_at": "document_start"
     }
   ],
   "manifest_version": 2
