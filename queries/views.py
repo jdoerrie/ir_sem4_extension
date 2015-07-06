@@ -44,12 +44,14 @@ def selectors(request, engine):
 
 @csrf_exempt
 def post(request):
+    logging.info(request)
     try:
         if not request.body:
             return HttpResponse("Wrong Entry.")
 
         body_decode = request.body.decode('utf-8')
         data = json.loads(body_decode)
+        logging.info(data)
         for entry in data:
             # Get current User, create a new one if no user with the
             # current id exists
@@ -58,15 +60,21 @@ def post(request):
             if len(users) == 1:
                 user = users[0]
             else:
-                user = User(user_id=user_id)
+                user = User(user_id=user_id, user_agent="")
                 user.save()
 
             # JavaScript Date.now() returns milliseconds
-            timestamp = float(entry.get("Timestamp", "0")) / 1000
+            timestamp = entry.get("Timestamp", 0) / 1000
             timestamp = datetime.datetime.utcfromtimestamp(timestamp)
             event = entry.get("Event")
 
-            if event == "Hover":
+            if event == "UserAgent":
+                user_agent = entry.get("UserAgent")
+                user.user_agent = user_agent
+                user.save()
+                logging.info('Received UserAgent')
+
+            elif event == "Hover":
                 # Hover Fields in JavaScript:
                 # 'Event': 'Hover',
                 # 'URL': window.location.href,
@@ -75,10 +83,12 @@ def post(request):
                 # 'PageY': event.pageY
                 text = entry.get("Text")
                 url = entry.get("URL")
-                page_x = int(entry.get("PageX", "0"))
-                page_y = int(entry.get("PageY", "0"))
+                page_x = entry.get("PageX", 0)
+                page_y = entry.get("PageY", 0)
+                duration = entry.get("Duration", 0)
+                delta = datetime.timedelta(milliseconds=duration)
                 hover = Hover(text=text, url=url, page_x=page_x, page_y=page_y,
-                              user=user, timestamp=timestamp)
+                              user=user, duration=delta, timestamp=timestamp)
                 hover.save()
                 logging.info("Received Hover")
 
@@ -100,14 +110,17 @@ def post(request):
                     # resultsList.push({
                     #   'Rank': idx,
                     #   'Text': text,
-                    #   'Link': href
+                    #   'Link': href,
+                    #   'Desc': href
                     # });
                     rank = result.get("Rank")
                     text = result.get("Text")
                     link = result.get("Link")
+                    desc = result.get("Desc")
                     search_result = SearchResult(rank=rank,
                                                  text=text,
                                                  link=link,
+                                                 desc=desc,
                                                  search_query=search_query)
                     search_result.save()
             elif event.endswith("Click"):
