@@ -123,16 +123,7 @@ def post(request):
                                                  desc=desc,
                                                  search_query=search_query)
                     search_result.save()
-            elif event.endswith("Click"):
-                # SERPClick Fields in JavaScript:
-                # 'Event': "SERPClick",
-                # 'CurrURL': window.location.href,
-                # 'PageX': event.pageX,
-                # 'PageY': event.pageY,
-                # 'Link': href,
-                # 'Text': text,
-                # 'Rank': idx
-
+            elif event == "Click":
                 # Click Fields in JavaScript:
                 # 'Event': 'Click',
                 # 'CurrURL': window.location.href,
@@ -147,9 +138,7 @@ def post(request):
                 text = entry.get("Text")
                 click = Click(url=url, link=link, page_x=page_x, page_y=page_y,
                               text=text, user=user, timestamp=timestamp)
-                # In case we are procressing a SERPClick try to find reference
-                # to the corresponding Search Result.
-                if event == 'SERPClick':
+                if "Rank" in entry:
                     rank = entry.get("Rank", 0)
                     search_results = SearchResult.objects.filter(
                         rank=rank, text=text, link=link,
@@ -159,6 +148,8 @@ def post(request):
                         click.search_result = search_results[0]
                 click.save()
                 logging.info("Received Click")
+                # In case we are procressing a SERPClick try to find reference
+                # to the corresponding Search Result.
 
     except KeyError:
         return HttpResponse("Wrong Entry.")

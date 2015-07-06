@@ -189,6 +189,7 @@ SearchEngine.prototype.installHandlers = function() {
       PageX: event.pageX,
       PageY: event.pageY,
       Link: $(this).attr('actual-href') || $(this).attr('href'),
+      Rank: $(this).attr('result-rank'),
       Text: $(this).text()
     });
   });
