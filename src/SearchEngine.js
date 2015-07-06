@@ -169,8 +169,8 @@ SearchEngine.prototype.getSearchResults = function() {
   $(this.selectors.resultsEntry).each(function() {
     searchResults.push({
       'Rank': $(this).attr('result-rank'),
-      'Text': $(this).find('a')[0].text(),
-      'Link': $(this).find('a')[0].attr('actual-href'),
+      'Text': $($(this).find('a')[0]).text(),
+      'Link': $($(this).find('a')[0]).attr('actual-href'),
       'Desc': $(this).not('a').text()
     });
   });
