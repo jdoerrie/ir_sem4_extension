@@ -13,13 +13,13 @@
   },
 
   "background": {
-    "scripts": ["./libs/jquery-1.11.2.js", "./bin/background-compiled.js"]
+    "scripts": ["./libs/jquery-1.11.2.min.js", "./bin/background-compiled.js"]
   },
 
   "content_scripts": [
     {
       "matches": [ "<all_urls>" ],
-      "js": ["./libs/jquery-1.11.2.js", "./bin/content-compiled.js"],
+      "js": ["./libs/jquery-1.11.2.min.js", "./bin/content-compiled.js"],
       "run_at": "document_start"
     }
   ],
