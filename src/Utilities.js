@@ -116,7 +116,73 @@ Utilities.registerUser = function() {
 Utilities.getTextNodesIn = function(node, includeWhitespaceNodes) {
   'use strict';
   var textNodes = [], nonWhitespaceMatcher = /\S/;
-  var blackListTags = [ 'meta', 'script', 'style', 'noscript', 'textarea' ];
+  // List taken from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
+  var whiteListTags = {
+    // Basic elements
+    'html': true,
+
+    // Document metadata
+    'base': false, 'head': false, 'link': false, 'meta': false, 'style': false,
+    'title': false,
+
+    // Content sectioning
+    'address': true, 'article': true, 'body': true, 'footer': true,
+    'header': true, 'h1': true, 'h2': true, 'h3': true, 'h4': true,
+    'h5': true, 'h6': true, 'hgroup': true, 'nav': true, 'section': true,
+
+    // Text content
+    'dd': true, 'div': true, 'dl': true, 'dt': true, 'figcaption': true,
+    'figure': true, 'hr': true, 'li': true, 'main': true, 'ol': true,
+    'p': true, 'pre': true, 'ul': true,
+
+    // Inline text semantics
+    'a': true, 'abbr': true, 'b': true, 'bdi': true, 'bdo': true, 'br': true,
+    'cite': true, 'code': true, 'data': true, 'dfn': true, 'em': true,
+    'i': true, 'kbd': true, 'mark': true, 'q': true, 'rp': true, 'rt': true,
+    'rtc': true, 'ruby': true, 's': true, 'samp': true, 'small': true,
+    'span': true, 'strong': true, 'sub': true, 'sup': true, 'time': true,
+    'u': true, 'var': true, 'wbr': true,
+
+    // Image & multimedia
+    'area': false, 'audio': false, 'img': false, 'map': false, 'track': false,
+    'video': false,
+
+    // embedded content
+    'embed': true, 'iframe': true, 'object': true, 'param': true,
+    'source': true,
+
+    // Scripting
+    'canvas': false, 'noscript': false, 'script': false,
+
+    // Edits
+    'del': true, 'ins': true,
+
+    // Table content
+    'caption': true, 'col': true, 'colgroup': true, 'table': true,
+    'tbody': true, 'td': true, 'tfoot': true, 'th': true, 'thead': true,
+    'tr': true,
+
+    // Forms
+    'button': true, 'datalist': true, 'fieldset': true, 'form': true,
+    'input': true, 'keygen': true, 'label': true, 'legend': true, 'meter': true,
+    'optgroup': true, 'option': true, 'output': true, 'progress': true,
+    'select': true, 'textarea': false,
+
+    // Interactive elements
+    'details': false, 'dialog': false, 'menu': false, 'menuitem': false,
+    'summary': false,
+
+    // Web Components
+    'content': false, 'decorator': false, 'element': false, 'shadow': false,
+    'template': false,
+
+    // Obsolete and deprecated elements
+    'acronym': true, 'applet': true, 'basefont': true, 'big': true,
+    'blink': true, 'center': true, 'dir': true, 'frame': true, 'frameset': true,
+    'isindex': true, 'listing': true, 'noembed': true, 'plaintext': true,
+    'spacer': true, 'strike': true, 'tt': true, 'xmp': true
+  };
+
   var blackListAttr = [ 'contenteditable' ];
 
   function getTextNodes(node) {
@@ -128,7 +194,7 @@ Utilities.getTextNodesIn = function(node, includeWhitespaceNodes) {
       return;
     } else {
       var tagName = $(node).prop('tagName').toLowerCase();
-      if (blackListTags.indexOf(tagName) !== -1 ||
+      if (!whiteListTags[tagName] ||
           (tagName === 'span' && $(node).attr('processed') === 'true')) {
         return;
       }
