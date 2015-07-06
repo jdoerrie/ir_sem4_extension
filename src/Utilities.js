@@ -1,23 +1,46 @@
+/* global chrome: false, Settings: false */
 function Utilities() {
 }
+
+
+// Utility function to escape HTML characters, which replaces reserved
+// characters by their html version.
+ Utilities.escapeHtml = function(string) {
+  'use strict';
+  var entityMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    '\'': '&#39;',
+    '/': '&#x2F;'
+  };
+
+  return String(string).replace(/[&<>"'\/]/g, function (s) {
+    return entityMap[s];
+  });
+};
+
 
 Utilities.buffer = [];
 
 
 Utilities.getRandomToken = function() {
+  'use strict';
   // E.g. 8 * 32 = 256 bits token
   var randomPool = new Uint8Array(32);
-  crypto.getRandomValues(randomPool);
+  window.crypto.getRandomValues(randomPool);
   var hex = '';
   for (var i = 0; i < randomPool.length; ++i) {
     hex += randomPool[i].toString(16);
   }
   // E.g. db18458e2782b2b77e36769c569e263a53885a9944dd0a861e5064eac16f1a
   return hex;
-}
+};
 
 
 Utilities.getUserId = function(callback) {
+  'use strict';
   chrome.storage.sync.get('UserId', function(items) {
     var UserId = items.UserId;
     if (UserId) {
@@ -32,77 +55,83 @@ Utilities.getUserId = function(callback) {
 };
 
 
-Utilities.logMessage = function(msg) {
-  Utilities.getUserId(function(UserId) {
-    console.log(UserId + ' ' + Date.now() + ' ' + msg);
-  });
-};
-
-
-Utilities.phoneHome = function(data, cb) {
+Utilities.phoneHome = function(data, callback) {
+  'use strict';
   if (!Array.isArray(data)) {
     data = [data];
   }
 
   chrome.runtime.sendMessage({
-    action: 'beacon',
-    url: Settings.Endpoint,
-    data: data
-  }, cb);
+    'action': 'beacon',
+    'url': Settings.Endpoint,
+    'data': data
+  }, callback);
 };
 
 
-Utilities.sendObject = function(obj) {
-  obj['Timestamp'] = Date.now();
-  Utilities.getUserId(function(UserId) {
-    obj['UserId'] = UserId;
-    Utilities.phoneHome(obj);
-  });
-};
+Utilities.sendObject = function(obj, isBuffered) {
+  'use strict';
+  isBuffered = typeof isBuffered !== 'undefined' ?  isBuffered : false;
 
-
-Utilities.logObject = function(obj) {
-  obj['Timestamp'] = Date.now();
+  obj.Timestamp = Date.now();
   Utilities.getUserId(function(UserId) {
-    obj['UserId'] = UserId;
-    Utilities.buffer.push(obj);
+    obj.UserId = UserId;
+    if (isBuffered) {
+      Utilities.buffer.push(obj);
+    } else {
+      Utilities.phoneHome(obj);
+    }
   });
 };
 
 
 Utilities.sendBuffer = function() {
+  'use strict';
   Utilities.phoneHome(Utilities.buffer, function(success) {
     if (success) {
       Utilities.buffer.length = 0;
     }
-  })
-};
-
-
-Utilities.addHandlerToAnchors = function() {
-  // Register Click Handlers on Links
-  $('a').click(function() {
-    Utilities.sendObject({
-      'Event': 'Click',
-      'CurrURL': window.location.href,
-      'PageX': event.pageX,
-      'PageY': event.pageY,
-      'Link': this.href,
-      'Text': this.text
-    });
   });
 };
 
 
+// This Utility function registeres the current User with the Server by
+// sending its UserAgent. This is done only once during the life team of
+// the session.
+Utilities.registerUser = function() {
+  'use strict';
+  if (Utilities.registeredUser) {
+    return;
+  }
+
+  Utilities.sendObject({
+    Event: 'UserAgent',
+    UserAgent: window.navigator.userAgent
+  });
+
+  Utilities.registeredUser = true;
+};
+
+
 Utilities.getTextNodesIn = function(node, includeWhitespaceNodes) {
+  'use strict';
   var textNodes = [], nonWhitespaceMatcher = /\S/;
+  var blackList = [ 'meta', 'script', 'style', 'noscript', 'textarea' ];
 
   function getTextNodes(node) {
     if (node.nodeType === Node.TEXT_NODE) {
       if (includeWhitespaceNodes || nonWhitespaceMatcher.test(node.nodeValue)) {
         textNodes.push(node);
       }
+    } else if (node.nodeType === Node.COMMENT_NODE) {
+      return;
     } else {
+      var tagName = $(node).prop('tagName').toLowerCase();
+      if (blackList.indexOf(tagName) !== -1 ||
+          (tagName === 'span' && $(node).attr('processed') === 'true')) {
+        return;
+      }
+
       for (var i = 0, len = node.childNodes.length; i < len; ++i) {
         getTextNodes(node.childNodes[i]);
       }
@@ -113,40 +142,35 @@ Utilities.getTextNodesIn = function(node, includeWhitespaceNodes) {
   return textNodes;
 };
 
-Utilities.wrapTextNodesInTag = function(tag, split) {
-  if (split == null) {
-    split = true;
-  }
 
-  var bodyEl = document.getElementsByTagName('body')[0];
-  var textNodes = Utilities.getTextNodesIn(bodyEl);
+Utilities.wrapTextNodesInTagAndAddHandlers = function(tag, handlers) {
+  'use strict';
+  var textNodes = document.body ? Utilities.getTextNodesIn(document.body) : [];
 
   $.each(textNodes, function(idx, node) {
-    if (split) {
-      $(node).replaceWith(
-          node.nodeValue.replace(/(\S+)/g, '<' + tag + '>$1</' + tag + '>'));
-    } else {
-      $(node).wrap('<' + tag + '/>');
-    }
+    $(node).replaceWith(function() {
+      var newNodes = Utilities.escapeHtml(node.nodeValue).replace(
+          /(\S+)/g, '<' + tag + '>$1</' + tag + '>');
+
+      newNodes = $.parseHTML(newNodes);
+      $(newNodes).each(function() {
+        $(this).attr({ style: 'all:unset', processed: 'true' });
+        var that = this;
+        $.each(handlers, function(key, val) {
+          $(that).off(key).on(key, val);
+        });
+      });
+
+      return newNodes;
+    });
   });
 };
 
-Utilities.logHoverEventOnTags = function(tag) {
-  $(tag).mouseenter(
-      function(event) {
-        Utilities.logObject({
-          'Event': 'Hover',
-          'URL': window.location.href,
-          'Text': $(this).text(),
-          'PageX': event.pageX,
-          'PageY': event.pageY
-        });
-      });
-};
 
 // navigator.sendBeacon polyfill, code taken from
 // https://github.com/miguelmota/Navigator.sendBeacon/blob/master/sendbeacon.js
 Utilities.sendBeacon = function(url, data) {
+  'use strict';
   var xhr = new XMLHttpRequest();
   xhr.open('POST', url, false);
   xhr.setRequestHeader('Accept', '*/*');
