@@ -1,6 +1,7 @@
-# Optimize Flags: WHITESPACE_ONLY, SIMPLE, ADVANCED
+# Optimize Flags: WHITESPACE_ONLY, SIMPLE, ADVANCED // Careful with
+# ADVANCED, breaks a lot of stuff
 COMPILER=java -jar bin/compiler.jar
-OPTIMIZATION=NONE
+OPTIMIZATION=SIMPLE
 EXTERNS=externs/*.js
 SRC_FORMAT=V3
 
@@ -26,7 +27,7 @@ ifeq (${OPTIMIZATION}, NONE)
 else
 	${COMPILER} \
 	--compilation_level ${OPTIMIZATION} \
-	--js src/Settings.js background.js \
+	--js src/*.js background.js \
 	--create_source_map bin/background.map \
 	--source_map_format ${SRC_FORMAT} \
 	--externs ${EXTERNS} \
