@@ -52,13 +52,31 @@ class SearchResultAdmin(admin.ModelAdmin):
 
 class ClickAdmin(admin.ModelAdmin):
     list_display = ('short_link', 'short_url', 'page_x', 'page_y', 'text',
-                    'search_result', 'user', 'timestamp')
+                    'search_query', 'rank',  'get_user', 'timestamp')
+
+    def search_query(self, obj):
+        if obj.search_result:
+            return obj.search_result.search_query.query
+        else:
+            return "---"
+
+    def rank(self, obj):
+        if obj.search_result:
+            return obj.search_result.rank
+        else:
+            return "---"
 
     def short_url(self, obj):
         return obj.url[:length] + ('', '...')[len(obj.url) > length]
 
     def short_link(self, obj):
         return obj.link[:length] + ('', '...')[len(obj.link) > length]
+
+    def get_user(self, obj):
+        return obj.user.user_id
+
+    get_user.short_description = 'User'
+    get_user.admin_order_field = 'user__user_id'
 
 # Register your models here.
 admin.site.register(User, UserAdmin)
