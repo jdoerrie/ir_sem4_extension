@@ -116,7 +116,8 @@ Utilities.registerUser = function() {
 Utilities.getTextNodesIn = function(node, includeWhitespaceNodes) {
   'use strict';
   var textNodes = [], nonWhitespaceMatcher = /\S/;
-  var blackList = [ 'meta', 'script', 'style', 'noscript', 'textarea' ];
+  var blackListTags = [ 'meta', 'script', 'style', 'noscript', 'textarea' ];
+  var blackListAttr = [ 'contenteditable' ];
 
   function getTextNodes(node) {
     if (node.nodeType === Node.TEXT_NODE) {
@@ -127,14 +128,20 @@ Utilities.getTextNodesIn = function(node, includeWhitespaceNodes) {
       return;
     } else {
       var tagName = $(node).prop('tagName').toLowerCase();
-      if (blackList.indexOf(tagName) !== -1 ||
+      if (blackListTags.indexOf(tagName) !== -1 ||
           (tagName === 'span' && $(node).attr('processed') === 'true')) {
         return;
       }
 
-      for (var i = 0, len = node.childNodes.length; i < len; ++i) {
-        getTextNodes(node.childNodes[i]);
-      }
+      $.each(blackListAttr, function() {
+        if ($(node).attr(this)) {
+          return;
+        }
+      });
+
+      $(node.childNodes).each(function() {
+        getTextNodes(this);
+      });
     }
   }
 
