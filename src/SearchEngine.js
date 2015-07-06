@@ -155,6 +155,7 @@ SearchEngine.prototype.processSearchResults = function() {
   var that = this;
   resultsEntries.each(function(idx) {
     $(this).attr('result-rank', numPrevResults + idx + 1);
+    $(this).find('a').attr('result-rank', numPrevResults + idx + 1);
     that.preprocessEntry($(this));
   });
 };
