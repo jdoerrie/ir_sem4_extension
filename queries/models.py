@@ -5,6 +5,7 @@ from django.db import models
 # agent.
 class User(models.Model):
     user_id = models.TextField(unique=True)
+    user_agent = models.TextField()
 
 
 # Hover class, logs every hover event. Keeps track of the text under
@@ -16,6 +17,7 @@ class Hover(models.Model):
     page_x = models.IntegerField()
     page_y = models.IntegerField()
     user = models.ForeignKey(User)
+    duration = models.DurationField()
     timestamp = models.DateTimeField()
 
 
@@ -34,6 +36,7 @@ class SearchResult(models.Model):
     rank = models.IntegerField()
     text = models.TextField()
     link = models.TextField()
+    desc = models.TextField()
     search_query = models.ForeignKey(SearchQuery)
 
 
