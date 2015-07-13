@@ -16,7 +16,7 @@ function Utilities() {
     '/': '&#x2F;'
   };
 
-  return String(string).replace(/[&<>"'\/]/g, function (s) {
+  return String(string).replace(/[&<>"'\/]/g, function(s) {
     return entityMap[s];
   });
 };
