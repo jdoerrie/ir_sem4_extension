@@ -113,6 +113,7 @@ Utilities.registerUser = function() {
 };
 
 
+// List taken from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 Utilities.whiteListTags = {
   // Basic elements
   'html': true,
@@ -183,7 +184,6 @@ Utilities. blackListAttr = [ 'contenteditable' ];
 Utilities.getTextNodesIn = function(node, includeWhitespaceNodes) {
   'use strict';
   var textNodes = [], nonWhitespaceMatcher = /\S/;
-  // List taken from https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 
   function getTextNodes(node) {
     if (node.nodeType === Node.TEXT_NODE) {
