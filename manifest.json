@@ -9,7 +9,8 @@
   ],
 
   "browser_action": {
-    "default_icon": "./img/Question_mark_16.png"
+    "default_icon": "./img/Question_mark_16.png",
+    "default_popup": "popup.html"
   },
 
   "background": {

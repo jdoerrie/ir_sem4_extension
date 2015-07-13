@@ -5,7 +5,7 @@ OPTIMIZATION=SIMPLE
 EXTERNS=externs/*.js
 SRC_FORMAT=V3
 
-all:	content background
+all:	content background popup
 
 content:
 ifeq (${OPTIMIZATION}, NONE)
@@ -33,6 +33,20 @@ else
 	--externs ${EXTERNS} \
 	--js_output_file bin/background-compiled.js
 	echo '//# sourceMappingURL=background.map'  >> bin/background-compiled.js
+endif
+
+popup:
+ifeq (${OPTIMIZATION}, NONE)
+	cat src/*.js popup.js > bin/popup-compiled.js
+else
+	${COMPILER} \
+	--compilation_level ${OPTIMIZATION} \
+	--js src/*.js popup.js \
+	--create_source_map bin/popup.map \
+	--source_map_format ${SRC_FORMAT} \
+	--externs ${EXTERNS} \
+	--js_output_file bin/popup-compiled.js
+	echo '//# sourceMappingURL=popup.map'  >> bin/popup-compiled.js
 endif
 
 clean:
