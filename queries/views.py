@@ -1,15 +1,25 @@
 import datetime
 import json
 import logging
+import random
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import User, Hover, SearchQuery, SearchResult, Click
+from .models import User, Hover, SearchQuery, SearchResult, Click, Topic
 
 
 # Create your views here.
 def index(request):
     return HttpResponse("Hello, World. You're at the queries index.")
+
+
+def get_topic(request):
+    topics = Topic.objects.all()
+    min_use = min([t.num_used for t in topics])
+    topic = random.choice([t for t in topics if t.num_used == min_use])
+    topic.num_used += 1
+    topic.save()
+    return HttpResponse(topic.topic)
 
 
 def selectors(request, engine):
