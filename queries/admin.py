@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Hover, SearchQuery, SearchResult, Click
+from .models import User, Hover, SearchQuery, SearchResult, Click, Topic
 
 length = 50
 
@@ -78,9 +78,15 @@ class ClickAdmin(admin.ModelAdmin):
     get_user.short_description = 'User'
     get_user.admin_order_field = 'user__user_id'
 
+
+class TopicAdmin(admin.ModelAdmin):
+    fields = list_display = ('topic', 'num_used')
+
+
 # Register your models here.
 admin.site.register(User, UserAdmin)
 admin.site.register(Hover, HoverAdmin)
 admin.site.register(SearchQuery, SearchQueryAdmin)
 admin.site.register(SearchResult, SearchResultAdmin)
 admin.site.register(Click, ClickAdmin)
+admin.site.register(Topic, TopicAdmin)
