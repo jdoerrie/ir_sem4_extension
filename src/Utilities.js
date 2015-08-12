@@ -24,6 +24,15 @@ function Utilities() {
 
 Utilities.buffer = [];
 
+// Utility function to pad the string representation of a given number `n`
+// to the desired `width`. Pad character is `z` defaulting to '0'.
+Utilities.pad = function (n, width, z) {
+  'use strict';
+  z = z || '0';
+  n = n + '';
+  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+};
+
 
 Utilities.getRandomToken = function() {
   'use strict';
@@ -32,7 +41,7 @@ Utilities.getRandomToken = function() {
   window.crypto.getRandomValues(randomPool);
   var hex = '';
   for (var i = 0; i < randomPool.length; ++i) {
-    hex += randomPool[i].toString(16);
+    hex += Utilities.pad(randomPool[i].toString(16), 2);
   }
   // E.g. db18458e2782b2b77e36769c569e263a53885a9944dd0a861e5064eac16f1a
   return hex;
