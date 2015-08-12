@@ -52,3 +52,10 @@ class Click(models.Model):
     search_result = models.ForeignKey(SearchResult, null=True, blank=True)
     user = models.ForeignKey(User)
     timestamp = models.DateTimeField()
+
+
+# Topic class, saves the text of the topic as well as the number of times a
+# given topic was used in the experiment.
+class Topic(models.Model):
+    topic = models.TextField()
+    num_used = models.IntegerField()
